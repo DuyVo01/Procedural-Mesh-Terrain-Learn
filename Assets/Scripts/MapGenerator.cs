@@ -7,6 +7,7 @@ using UnityEngine;
 public class MapGenerator : MonoBehaviour
 {
     [SerializeField] private DrawMode drawMode;
+    [SerializeField] private Noise.NormalizeMode normalizeMode;
 
     [SerializeField] private float meshHeightMultiplier;
     [SerializeField] private AnimationCurve meshHeightCurve;
@@ -101,7 +102,7 @@ public class MapGenerator : MonoBehaviour
 
     private MapData GenerateMapData(Vector2 center)
     {
-        float[,] noiseMap = Noise.GenerateNoiseMap(MapChunkSize, MapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset + center);
+        float[,] noiseMap = Noise.GenerateNoiseMap(MapChunkSize, MapChunkSize, seed, noiseScale, octaves, persistance, lacunarity, offset + center, normalizeMode);
 
         Color[] colorMap = new Color[MapChunkSize * MapChunkSize];
         for (int y = 0; y < MapChunkSize; y++)
@@ -111,9 +112,12 @@ public class MapGenerator : MonoBehaviour
                 float currentHeight = noiseMap[x, y];
                 for (int i = 0; i < regions.Length; i++)
                 {
-                    if(currentHeight <= regions[i].height)
+                    if(currentHeight >= regions[i].height)
                     {
-                        colorMap[y * MapChunkSize + x] = regions[i].color;
+                        colorMap[y * MapChunkSize + x] = regions[i].color; 
+                    }
+                    else
+                    {
                         break;
                     }
                 }
